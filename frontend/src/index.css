@@ -54,6 +54,93 @@ input, select { font-family: inherit; }
   padding-bottom: 5rem; /* clearance for the bottom navbar on mobile */
 }
 
+/* ── Ver Polera button ──────────────────────────────────────────── */
+.btn-ver-polera {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.85rem;
+  background: var(--black);
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+.btn-ver-polera:hover { background: var(--gold); color: var(--black); }
+
+/* ── Video modal ────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end; /* sheet from bottom on mobile */
+  justify-content: center;
+  padding: 0;
+}
+.modal-box {
+  position: relative;
+  background: var(--black);
+  width: 100%;
+  max-height: 92dvh;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 1.1rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.9rem;
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  font-family: inherit;
+  transition: color var(--ease);
+}
+.modal-close:hover { color: var(--white); }
+.modal-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.modal-video {
+  width: 100%;
+  max-height: 70dvh;
+  border-radius: var(--radius-sm);
+  background: #000;
+  outline: none;
+}
+
+@media (min-width: 768px) {
+  .modal-backdrop { align-items: center; padding: 1.5rem; }
+  .modal-box {
+    width: auto;
+    max-width: 560px;
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.25rem 1.5rem;
+  }
+  .modal-video { max-height: 60vh; }
+}
+
 /* ── Dev credit ─────────────────────────────────────────────────── */
 .dev-credit {
   display: block;
@@ -114,6 +201,12 @@ input, select { font-family: inherit; }
   z-index: 1000;
 }
 .navbar-brand { display: none; }
+.brand-logo-img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
 
 .navbar-item {
   flex: 1;
@@ -493,6 +586,7 @@ input[type="number"] { -moz-appearance: textfield; }
     color: var(--gold);
     text-transform: uppercase;
   }
+  .brand-logo-img { height: 44px; }
   .navbar-item {
     flex: none;
     flex-direction: row;

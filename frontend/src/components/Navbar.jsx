@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import logoUrl from '../../content/LogoSinFondo.png';
 
 const TABS = [
   { to: '/jugadores', icon: '⚽', label: 'Jugadores' },
@@ -11,7 +12,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <span className="brand-logo">Einlich</span>
+        <img src={logoUrl} alt="Einlich" className="brand-logo-img" />
       </div>
 
       {TABS.map((tab) => (

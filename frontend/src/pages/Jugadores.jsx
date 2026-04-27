@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import api from '../api';
+import VideoModal from '../components/VideoModal';
 
 const PLAYERS = [
   'Adrian Saucedo', 'Bruno Barbonari', 'Carlos Raña',   'Dahir Barja',
@@ -153,6 +154,7 @@ export default function Jugadores() {
     (existingId || (!isNaN(numVal) && numVal >= 1 && numVal <= 999));
 
   const showShirtForm = playerName && modelo && !isChecking;
+  const [showVideo, setShowVideo] = useState(false);
 
   return (
     <>
@@ -166,6 +168,12 @@ export default function Jugadores() {
           <span aria-hidden="true">🎽</span>
           <span>Incluye Polera y Short</span>
         </div>
+
+        <button type="button" className="btn-ver-polera" onClick={() => setShowVideo(true)}>
+          🎥 Ver Polera 2026
+        </button>
+
+        {showVideo && <VideoModal onClose={() => setShowVideo(false)} />}
 
         {successMsg && <div className="alert alert-success">{successMsg}</div>}
 

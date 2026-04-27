@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../api';
+import VideoModal from '../components/VideoModal';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
@@ -18,6 +19,7 @@ export default function Hinchas() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error,        setError]        = useState('');
   const [successMsg,   setSuccessMsg]   = useState('');
+  const [showVideo,    setShowVideo]    = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,6 +84,12 @@ export default function Hinchas() {
           <span aria-hidden="true">🎽</span>
           <span>Incluye solo Polera</span>
         </div>
+
+        <button type="button" className="btn-ver-polera" onClick={() => setShowVideo(true)}>
+          🎥 Ver Polera 2026
+        </button>
+
+        {showVideo && <VideoModal onClose={() => setShowVideo(false)} />}
 
         {successMsg && <div className="alert alert-success">{successMsg}</div>}
 
