@@ -54,6 +54,20 @@ input, select { font-family: inherit; }
   padding-bottom: 5rem; /* clearance for the bottom navbar on mobile */
 }
 
+/* ── Dev credit ─────────────────────────────────────────────────── */
+.dev-credit {
+  display: block;
+  text-align: center;
+  padding: 0.6rem 1rem 1.2rem;
+  font-size: 0.72rem;
+  color: var(--gray);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.dev-credit:hover { color: var(--gold); }
+.dev-credit strong { font-weight: 700; }
+
 /* ── Page wrapper ───────────────────────────────────────────────── */
 .page {
   padding: 1rem;

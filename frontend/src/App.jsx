@@ -17,6 +17,14 @@ export default function App() {
             <Route path="/hinchas" element={<Hinchas />} />
             <Route path="/reportes" element={<Reportes />} />
           </Routes>
+          <a
+            href="https://me.xchar.site"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="dev-credit"
+          >
+            Desarrollado por <strong>@XCHAR</strong>
+          </a>
         </main>
       </div>
     </BrowserRouter>
