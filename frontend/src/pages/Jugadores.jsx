@@ -45,6 +45,7 @@ export default function Jugadores() {
   const [modelo,        setModelo]        = useState('');
   const [nombrePolera,  setNombrePolera]  = useState('');
   const [talla,         setTalla]         = useState('');
+  const [numero,        setNumero]        = useState('');
   const [existingId,    setExistingId]    = useState(null);
   const [isChecking,    setIsChecking]    = useState(false);
   const [isSubmitting,  setIsSubmitting]  = useState(false);
@@ -63,6 +64,7 @@ export default function Jugadores() {
       setExistingId(null);
       setNombrePolera('');
       setTalla('');
+      setNumero('');
 
       try {
         const res = await api.get('/api/players/check', {
@@ -72,6 +74,7 @@ export default function Jugadores() {
           setExistingId(res.data._id);
           setNombrePolera(res.data.nombrePolera);
           setTalla(res.data.talla);
+          setNumero(String(res.data.numeroPolera ?? ''));
         }
       } catch {
         // ignore — treat as new entry
@@ -91,6 +94,7 @@ export default function Jugadores() {
       setModelo('');
       setNombrePolera('');
       setTalla('');
+      setNumero('');
       setExistingId(null);
     }
   };
@@ -114,6 +118,7 @@ export default function Jugadores() {
       nombrePolera:  nombrePolera.trim(),
       talla,
       modelo,
+      ...(!existingId && { numeroPolera: parseInt(numero, 10) }),
     };
 
     try {
@@ -132,6 +137,7 @@ export default function Jugadores() {
       setModelo('');
       setNombrePolera('');
       setTalla('');
+      setNumero('');
       setExistingId(null);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al guardar el pedido');
@@ -140,10 +146,11 @@ export default function Jugadores() {
     }
   };
 
-  const numVal       = parseInt(numero, 10);
+  const numVal      = parseInt(numero, 10);
   const isFormValid  =
     nombrePolera.trim() &&
-    talla;
+    talla &&
+    (existingId || (!isNaN(numVal) && numVal >= 1 && numVal <= 999));
 
   const showShirtForm = playerName && modelo && !isChecking;
 
@@ -250,6 +257,42 @@ export default function Jugadores() {
                   {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
+
+              {/* Number: editable only on first submission, locked on update */}
+              {!existingId ? (
+                <div className="form-group">
+                  <label htmlFor="jug-numero">Número en la Polera</label>
+                  <input
+                    id="jug-numero"
+                    type="number"
+                    value={numero}
+                    onChange={(e) => { setNumero(e.target.value); setError(''); }}
+                    placeholder="Ej: 10"
+                    min={1}
+                    max={999}
+                    inputMode="numeric"
+                  />
+                </div>
+              ) : (
+                <div className="form-group">
+                  <label>Número en la Polera</label>
+                  <div style={{
+                    padding: '0.7rem 0.9rem',
+                    border: '2px solid var(--gray-light)',
+                    borderRadius: '8px',
+                    background: '#F7F7F7',
+                    color: 'var(--gray)',
+                    fontSize: '1rem',
+                    minHeight: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                  }}>
+                    <span style={{ fontWeight: 800, color: 'var(--black-soft)' }}>{numero || '—'}</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--gray)' }}>(no se puede modificar)</span>
+                  </div>
+                </div>
+              )}
 
               {error && <div className="alert alert-error">{error}</div>}
 
