@@ -13,6 +13,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-brand">
         <img src={logoUrl} alt="Einlich" className="brand-logo-img" />
+        <span className="brand-logo">Einlich</span>
       </div>
 
       {TABS.map((tab) => (
