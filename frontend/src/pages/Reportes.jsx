@@ -199,6 +199,7 @@ function FanTable({ fans }) {
   const excelRows = fans.map((f) => ({
     Nombre:          f.nombre,
     Teléfono:        f.telefono,
+    Género:          f.genero ? (f.genero === 'hombre' ? 'Hombre' : 'Mujer') : '',
     Modelo:          modelLabel(f.modelo),
     'Nombre Polera': f.nombrePolera,
     Talla:           f.talla,
@@ -208,13 +209,18 @@ function FanTable({ fans }) {
   const clipFields = [
     { key: 'nombre',       label: 'Nombre'   },
     { key: 'telefono',     label: 'Tel'       },
+    { key: 'genero',       label: 'Género'    },
     { key: 'modelo',       label: 'Modelo'    },
     { key: 'nombrePolera', label: 'Polera'    },
     { key: 'talla',        label: 'Talla'     },
     { key: 'numeroPolera', label: 'Número'    },
   ];
 
-  const clipRows = fans.map((f) => ({ ...f, modelo: modelLabel(f.modelo) }));
+  const clipRows = fans.map((f) => ({
+    ...f,
+    modelo: modelLabel(f.modelo),
+    genero: f.genero ? (f.genero === 'hombre' ? 'Hombre' : 'Mujer') : '',
+  }));
 
   return (
     <div className="report-section">
@@ -244,6 +250,7 @@ function FanTable({ fans }) {
             <tr>
               <th>Nombre</th>
               <th>Teléfono</th>
+              <th>Género</th>
               <th>Modelo</th>
               <th>Nombre Polera</th>
               <th>Talla</th>
@@ -252,12 +259,13 @@ function FanTable({ fans }) {
           </thead>
           <tbody>
             {fans.length === 0 ? (
-              <tr><td colSpan={6} className="empty-cell">Sin pedidos aún</td></tr>
+              <tr><td colSpan={7} className="empty-cell">Sin pedidos aún</td></tr>
             ) : (
               fans.map((f) => (
                 <tr key={f._id}>
                   <td style={{ fontWeight: 700 }}>{f.nombre}</td>
                   <td>{f.telefono}</td>
+                  <td>{f.genero ? (f.genero === 'hombre' ? '👨 Hombre' : '👩 Mujer') : <span style={{color:'var(--gray)',fontStyle:'italic'}}>—</span>}</td>
                   <td><span className={`badge badge-${f.modelo}`}>{modelLabel(f.modelo)}</span></td>
                   <td>{f.nombrePolera}</td>
                   <td>{f.talla}</td>

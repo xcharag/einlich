@@ -6,6 +6,7 @@ const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 const EMPTY_FORM = {
   nombre:       '',
   telefono:     '',
+  genero:       '',
   nombrePolera: '',
   talla:        '',
   numero:       '',
@@ -41,6 +42,7 @@ export default function Hinchas() {
       await api.post('/api/fans', {
         nombre:       form.nombre.trim(),
         telefono:     form.telefono.trim(),
+        genero:       form.genero || null,
         nombrePolera: form.nombrePolera.trim(),
         talla:        form.talla,
         numeroPolera: parseInt(form.numero, 10),
@@ -59,6 +61,7 @@ export default function Hinchas() {
   const isFormValid =
     form.nombre.trim() &&
     form.telefono.trim() &&
+    form.genero &&
     form.nombrePolera.trim() &&
     form.talla &&
     form.numero &&
@@ -112,6 +115,28 @@ export default function Hinchas() {
                 autoComplete="tel"
                 inputMode="tel"
               />
+            </div>
+
+            <div className="form-group">
+              <label>Género</label>
+              <div className="model-selector">
+                <button
+                  type="button"
+                  className={`model-card${form.genero === 'hombre' ? ' selected' : ''}`}
+                  onClick={() => { setForm(p => ({ ...p, genero: 'hombre' })); setError(''); }}
+                >
+                  <span className="model-card-icon" aria-hidden="true">👨</span>
+                  <span className="model-card-label">Hombre</span>
+                </button>
+                <button
+                  type="button"
+                  className={`model-card${form.genero === 'mujer' ? ' selected' : ''}`}
+                  onClick={() => { setForm(p => ({ ...p, genero: 'mujer' })); setError(''); }}
+                >
+                  <span className="model-card-icon" aria-hidden="true">👩</span>
+                  <span className="model-card-label">Mujer</span>
+                </button>
+              </div>
             </div>
           </div>
 

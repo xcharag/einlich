@@ -9,7 +9,7 @@ const VALID_TALLAS = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
 // ── POST /api/fans ────────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
-  const { nombre, telefono, nombrePolera, talla, numeroPolera, modelo } = req.body;
+  const { nombre, telefono, genero, nombrePolera, talla, numeroPolera, modelo } = req.body;
 
   if (!nombre || !telefono || !nombrePolera || !talla || !numeroPolera || !modelo) {
     return res.status(400).json({ error: 'Todos los campos son requeridos' });
@@ -33,6 +33,7 @@ router.post('/', async (req, res) => {
     const result = await db.collection(COLLECTION).insertOne({
       nombre: String(nombre).trim(),
       telefono: String(telefono).trim(),
+      ...(genero && { genero: String(genero).trim() }),
       nombrePolera: String(nombrePolera).trim().toUpperCase(),
       talla,
       numeroPolera: numInt,
