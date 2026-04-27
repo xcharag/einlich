@@ -80,7 +80,7 @@ export default function Hinchas() {
       <div className="page">
         <div className="info-banner">
           <span aria-hidden="true">🎽</span>
-          <span>Incluye Polera y Short</span>
+          <span>Incluye solo Polera</span>
         </div>
 
         {successMsg && <div className="alert alert-success">{successMsg}</div>}
