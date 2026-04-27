@@ -37,7 +37,10 @@ services:
       - backend
     networks:
       - app-net
+      - coolify
 
 networks:
   app-net:
     driver: bridge
+  coolify:
+    external: true
