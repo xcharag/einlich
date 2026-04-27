@@ -45,7 +45,6 @@ export default function Jugadores() {
   const [modelo,        setModelo]        = useState('');
   const [nombrePolera,  setNombrePolera]  = useState('');
   const [talla,         setTalla]         = useState('');
-  const [numero,        setNumero]        = useState('');
   const [existingId,    setExistingId]    = useState(null);
   const [isChecking,    setIsChecking]    = useState(false);
   const [isSubmitting,  setIsSubmitting]  = useState(false);
@@ -64,7 +63,6 @@ export default function Jugadores() {
       setExistingId(null);
       setNombrePolera('');
       setTalla('');
-      setNumero('');
 
       try {
         const res = await api.get('/api/players/check', {
@@ -74,7 +72,6 @@ export default function Jugadores() {
           setExistingId(res.data._id);
           setNombrePolera(res.data.nombrePolera);
           setTalla(res.data.talla);
-          setNumero(String(res.data.numeroPolera));
         }
       } catch {
         // ignore — treat as new entry
@@ -94,7 +91,6 @@ export default function Jugadores() {
       setModelo('');
       setNombrePolera('');
       setTalla('');
-      setNumero('');
       setExistingId(null);
     }
   };
@@ -117,7 +113,6 @@ export default function Jugadores() {
       nombreJugador: playerName.value,
       nombrePolera:  nombrePolera.trim(),
       talla,
-      numeroPolera:  parseInt(numero, 10),
       modelo,
     };
 
@@ -137,7 +132,6 @@ export default function Jugadores() {
       setModelo('');
       setNombrePolera('');
       setTalla('');
-      setNumero('');
       setExistingId(null);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al guardar el pedido');
@@ -149,11 +143,7 @@ export default function Jugadores() {
   const numVal       = parseInt(numero, 10);
   const isFormValid  =
     nombrePolera.trim() &&
-    talla &&
-    numero &&
-    !isNaN(numVal) &&
-    numVal >= 1 &&
-    numVal <= 999;
+    talla;
 
   const showShirtForm = playerName && modelo && !isChecking;
 
@@ -259,20 +249,6 @@ export default function Jugadores() {
                   <option value="">Selecciona una talla</option>
                   {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="jug-numero">Número en la Polera</label>
-                <input
-                  id="jug-numero"
-                  type="number"
-                  value={numero}
-                  onChange={(e) => { setNumero(e.target.value); setError(''); }}
-                  placeholder="Ej: 10"
-                  min={1}
-                  max={999}
-                  inputMode="numeric"
-                />
               </div>
 
               {error && <div className="alert alert-error">{error}</div>}

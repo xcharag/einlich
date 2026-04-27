@@ -23,16 +23,106 @@ async function copyText(rows, fields, setCopied) {
   setTimeout(() => setCopied(false), 2200);
 }
 
+// ── NumberCell — inline editable shirt number (admin only) ───────────────────
+function NumberCell({ player, token, onUpdated }) {
+  const [editing,  setEditing]  = useState(false);
+  const [value,    setValue]    = useState(player.numeroPolera ?? '');
+  const [saving,   setSaving]   = useState(false);
+  const [rowError, setRowError] = useState('');
+
+  const handleSave = async () => {
+    const num = parseInt(value, 10);
+    if (isNaN(num) || num < 1 || num > 999) {
+      setRowError('Número inválido');
+      return;
+    }
+    setSaving(true);
+    setRowError('');
+    try {
+      const res = await api.patch(`/api/players/${player._id}/numero`, { numeroPolera: num }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      onUpdated(res.data);
+      setEditing(false);
+    } catch (err) {
+      setRowError(err.response?.data?.error || 'Error al guardar');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSave();
+    if (e.key === 'Escape') { setEditing(false); setValue(player.numeroPolera ?? ''); setRowError(''); }
+  };
+
+  if (!editing) {
+    return (
+      <span
+        className="num-cell"
+        title="Haz clic para editar el número"
+        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+        onClick={() => { setEditing(true); setValue(player.numeroPolera ?? ''); }}
+      >
+        {player.numeroPolera ?? <span style={{ color: 'var(--gray)', fontWeight: 400, fontStyle: 'italic' }}>—</span>}
+        <span style={{ fontSize: '0.65rem', color: 'var(--gray)' }}>✏️</span>
+      </span>
+    );
+  }
+
+  return (
+    <span style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+      <span style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+        <input
+          type="number"
+          value={value}
+          onChange={(e) => { setValue(e.target.value); setRowError(''); }}
+          onKeyDown={handleKeyDown}
+          autoFocus
+          min={1}
+          max={999}
+          inputMode="numeric"
+          style={{ width: '72px', padding: '0.25rem 0.4rem', border: '2px solid var(--gold)', borderRadius: '6px', fontSize: '0.85rem' }}
+        />
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={handleSave}
+          disabled={saving}
+          style={{ margin: 0, minHeight: '28px', padding: '0.2rem 0.55rem', fontSize: '0.75rem' }}
+        >
+          {saving ? <span className="spinner" style={{ width: 12, height: 12 }} /> : '✓'}
+        </button>
+        <button
+          className="btn btn-outline btn-sm"
+          onClick={() => { setEditing(false); setValue(player.numeroPolera ?? ''); setRowError(''); }}
+          style={{ margin: 0, minHeight: '28px', padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}
+        >
+          ✕
+        </button>
+      </span>
+      {rowError && <span style={{ fontSize: '0.7rem', color: 'var(--red)' }}>{rowError}</span>}
+    </span>
+  );
+}
+
 // ── sub-components ────────────────────────────────────────────────────────────
-function PlayerTable({ players }) {
+function PlayerTable({ players: initialPlayers, token }) {
+  const [players,       setPlayers]       = useState(initialPlayers);
   const [copiedPlayers, setCopiedPlayers] = useState(false);
 
+  // Keep in sync when parent reloads data
+  React.useEffect(() => { setPlayers(initialPlayers); }, [initialPlayers]);
+
+  const handleUpdated = (updated) => {
+    setPlayers((prev) => prev.map((p) => p._id === updated._id ? updated : p));
+  };
+
   const excelRows = players.map((p) => ({
-    Jugador:        p.nombreJugador,
-    Modelo:         modelLabel(p.modelo),
+    Jugador:         p.nombreJugador,
+    Modelo:          modelLabel(p.modelo),
     'Nombre Polera': p.nombrePolera,
-    Talla:          p.talla,
-    'Número':       p.numeroPolera,
+    Talla:           p.talla,
+    'Número':        p.numeroPolera ?? '',
   }));
 
   const clipFields = [
@@ -46,6 +136,7 @@ function PlayerTable({ players }) {
   const clipRows = players.map((p) => ({
     ...p,
     modelo: modelLabel(p.modelo),
+    numeroPolera: p.numeroPolera ?? '—',
   }));
 
   return (
@@ -78,7 +169,7 @@ function PlayerTable({ players }) {
               <th>Modelo</th>
               <th>Nombre Polera</th>
               <th>Talla</th>
-              <th>Nro.</th>
+              <th>Nro. ✏️</th>
             </tr>
           </thead>
           <tbody>
@@ -91,7 +182,7 @@ function PlayerTable({ players }) {
                   <td><span className={`badge badge-${p.modelo}`}>{modelLabel(p.modelo)}</span></td>
                   <td>{p.nombrePolera}</td>
                   <td>{p.talla}</td>
-                  <td className="num-cell">{p.numeroPolera}</td>
+                  <td><NumberCell player={p} token={token} onUpdated={handleUpdated} /></td>
                 </tr>
               ))
             )}
@@ -300,7 +391,7 @@ export default function Reportes() {
           </button>
         </div>
 
-        <PlayerTable players={players} />
+        <PlayerTable players={players} token={token} />
         <FanTable    fans={fans}       />
       </div>
     </>

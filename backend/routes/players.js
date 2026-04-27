@@ -48,10 +48,12 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // ── POST /api/players ─────────────────────────────────────────────────────────
+// Players submit: nombreJugador, nombrePolera, talla, modelo.
+// numeroPolera is NOT accepted here — assigned by admin via PATCH /:id/numero.
 router.post('/', async (req, res) => {
-  const { nombreJugador, nombrePolera, talla, numeroPolera, modelo } = req.body;
+  const { nombreJugador, nombrePolera, talla, modelo } = req.body;
 
-  if (!nombreJugador || !nombrePolera || !talla || !numeroPolera || !modelo) {
+  if (!nombreJugador || !nombrePolera || !talla || !modelo) {
     return res.status(400).json({ error: 'Todos los campos son requeridos' });
   }
 
@@ -63,11 +65,6 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Talla inválida' });
   }
 
-  const numInt = parseInt(numeroPolera, 10);
-  if (isNaN(numInt) || numInt < 1 || numInt > 999) {
-    return res.status(400).json({ error: 'Número de polera inválido (1–999)' });
-  }
-
   try {
     const db = getDB();
 
@@ -75,7 +72,6 @@ router.post('/', async (req, res) => {
       nombreJugador: String(nombreJugador).trim(),
       nombrePolera: String(nombrePolera).trim().toUpperCase(),
       talla,
-      numeroPolera: numInt,
       modelo,
       creadoEn: new Date(),
     });
@@ -83,9 +79,6 @@ router.post('/', async (req, res) => {
     return res.status(201).json({ _id: result.insertedId });
   } catch (err) {
     if (err.code === 11000) {
-      if (err.keyPattern?.numeroPolera) {
-        return res.status(409).json({ error: `El número ${parseInt(numeroPolera, 10)} ya está en uso` });
-      }
       if (err.keyPattern?.nombreJugador || err.keyPattern?.modelo) {
         return res.status(409).json({
           error: 'Ya existe un pedido para este jugador y modelo. Usa la opción de actualizar.',
@@ -98,7 +91,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ── PUT /api/players/:id ──────────────────────────────────────────────────────
+// ── PUT /api/players/:id — player self-update (nombrePolera + talla only) ────
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -106,17 +99,52 @@ router.put('/:id', async (req, res) => {
     return res.status(400).json({ error: 'ID inválido' });
   }
 
-  const { nombrePolera, talla, numeroPolera } = req.body;
+  const { nombrePolera, talla } = req.body;
 
-  if (!nombrePolera || !talla || !numeroPolera) {
-    return res.status(400).json({ error: 'Todos los campos son requeridos' });
+  if (!nombrePolera || !talla) {
+    return res.status(400).json({ error: 'Nombre en polera y talla son requeridos' });
   }
 
   if (!VALID_TALLAS.includes(talla)) {
     return res.status(400).json({ error: 'Talla inválida' });
   }
 
+  try {
+    const db = getDB();
+    const updated = await db.collection(COLLECTION).findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          nombrePolera: String(nombrePolera).trim().toUpperCase(),
+          talla,
+          actualizadoEn: new Date(),
+        },
+      },
+      { returnDocument: 'after' }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    return res.json(updated);
+  } catch (err) {
+    console.error('put player error:', err);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// ── PATCH /api/players/:id/numero — admin assigns shirt number (protected) ───
+router.patch('/:id/numero', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'ID inválido' });
+  }
+
+  const { numeroPolera } = req.body;
   const numInt = parseInt(numeroPolera, 10);
+
   if (isNaN(numInt) || numInt < 1 || numInt > 999) {
     return res.status(400).json({ error: 'Número de polera inválido (1–999)' });
   }
@@ -136,14 +164,7 @@ router.put('/:id', async (req, res) => {
 
     const updated = await db.collection(COLLECTION).findOneAndUpdate(
       { _id: objId },
-      {
-        $set: {
-          nombrePolera: String(nombrePolera).trim().toUpperCase(),
-          talla,
-          numeroPolera: numInt,
-          actualizadoEn: new Date(),
-        },
-      },
+      { $set: { numeroPolera: numInt, actualizadoEn: new Date() } },
       { returnDocument: 'after' }
     );
 
@@ -153,7 +174,10 @@ router.put('/:id', async (req, res) => {
 
     return res.json(updated);
   } catch (err) {
-    console.error('put player error:', err);
+    if (err.code === 11000) {
+      return res.status(409).json({ error: `El número ${numInt} ya está en uso` });
+    }
+    console.error('patch numero error:', err);
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
