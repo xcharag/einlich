@@ -51,6 +51,7 @@ input, select { font-family: inherit; }
 }
 .app-main {
   flex: 1;
+  padding-bottom: 5rem; /* clearance for the bottom navbar on mobile */
 }
 
 /* ── Page wrapper ───────────────────────────────────────────────── */
