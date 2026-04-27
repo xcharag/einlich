@@ -13,7 +13,7 @@ async function connectDB() {
   console.log(`Connected to MongoDB — database: ${db.databaseName}`);
 
   // Ensure indexes
-  await db.collection('player-shirt').createIndex({ numeroPolera: 1 }, { unique: true, sparse: true });
+  await db.collection('player-shirt').createIndex({ numeroPolera: 1 }, { unique: true });
   await db.collection('player-shirt').createIndex({ nombreJugador: 1, modelo: 1 }, { unique: true });
 
   return db;
