@@ -51,7 +51,6 @@ input, select { font-family: inherit; }
 }
 .app-main {
   flex: 1;
-  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
 }
 
 /* ── Page wrapper ───────────────────────────────────────────────── */
