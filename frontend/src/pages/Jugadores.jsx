@@ -156,6 +156,34 @@ export default function Jugadores() {
 
   const showShirtForm = playerName && modelo && !isChecking;
   const [showVideo, setShowVideo] = useState(false);
+  const [showMissing, setShowMissing] = useState(false);
+  const [missingList, setMissingList] = useState(null);
+  const [loadingMissing, setLoadingMissing] = useState(false);
+
+  const handleShowMissing = async () => {
+    setShowMissing(true);
+    if (missingList !== null) return; // already loaded
+    setLoadingMissing(true);
+    try {
+      const res = await api.get('/api/players/submitted');
+      const submittedMap = {};
+      for (const { nombreJugador, modelos } of res.data) {
+        submittedMap[nombreJugador] = modelos;
+      }
+      const allNames = PLAYERS.map((p) => p.value);
+      const rows = allNames.map((name) => {
+        const modelos = submittedMap[name] || [];
+        const hasJugador = modelos.includes('jugador');
+        const hasPortero = modelos.includes('portero');
+        return { name, hasJugador, hasPortero };
+      });
+      setMissingList(rows);
+    } catch {
+      setMissingList([]);
+    } finally {
+      setLoadingMissing(false);
+    }
+  };
 
   return (
     <>
@@ -175,6 +203,82 @@ export default function Jugadores() {
         </button>
 
         {showVideo && <VideoModal onClose={() => setShowVideo(false)} />}
+
+        <button type="button" className="btn-ver-polera" onClick={handleShowMissing}>
+          📋 Ver Faltantes
+        </button>
+
+        {showMissing && (
+          <div
+            style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 10000, padding: '1rem',
+            }}
+            onClick={() => setShowMissing(false)}
+          >
+            <div
+              style={{
+                background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '520px',
+                maxHeight: '80vh', display: 'flex', flexDirection: 'column',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{
+                padding: '1.1rem 1.4rem', borderBottom: '1px solid #EEE',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              }}>
+                <span style={{ fontWeight: 700, fontSize: '1rem' }}>Estado de Pedidos</span>
+                <button
+                  onClick={() => setShowMissing(false)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.3rem', cursor: 'pointer', lineHeight: 1 }}
+                  aria-label="Cerrar"
+                >×</button>
+              </div>
+
+              <div style={{ overflowY: 'auto', padding: '0.6rem 1.4rem 1.2rem' }}>
+                {loadingMissing ? (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>Cargando…</div>
+                ) : missingList && (() => {
+                  const missing = missingList.filter((r) => !r.hasJugador || !r.hasPortero);
+                  if (missing.length === 0) {
+                    return <div style={{ textAlign: 'center', padding: '1.5rem', color: '#4CAF50', fontWeight: 700 }}>✅ ¡Todos han enviado su pedido!</div>;
+                  }
+                  return (
+                    <>
+                      <p style={{ fontSize: '0.8rem', color: '#888', margin: '0.6rem 0 0.8rem' }}>
+                        {missing.length} jugador{missing.length !== 1 ? 'es' : ''} con pedido incompleto
+                      </p>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid #EEE', textAlign: 'left' }}>
+                            <th style={{ padding: '0.4rem 0.5rem', fontWeight: 700 }}>Jugador</th>
+                            <th style={{ padding: '0.4rem 0.5rem', textAlign: 'center' }}>⚽ Jugador</th>
+                            <th style={{ padding: '0.4rem 0.5rem', textAlign: 'center' }}>🧤 Portero</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {missing.map((r) => (
+                            <tr key={r.name} style={{ borderBottom: '1px solid #F5F5F5' }}>
+                              <td style={{ padding: '0.45rem 0.5rem', fontWeight: 500 }}>{r.name}</td>
+                              <td style={{ padding: '0.45rem 0.5rem', textAlign: 'center' }}>
+                                {r.hasJugador ? '✅' : <span style={{ color: '#E53935', fontWeight: 700 }}>✗</span>}
+                              </td>
+                              <td style={{ padding: '0.45rem 0.5rem', textAlign: 'center' }}>
+                                {r.hasPortero ? '✅' : <span style={{ color: '#E53935', fontWeight: 700 }}>✗</span>}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
 
         {successMsg && <div className="alert alert-success">{successMsg}</div>}
 

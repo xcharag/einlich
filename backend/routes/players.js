@@ -31,6 +31,35 @@ router.get('/check', async (req, res) => {
   }
 });
 
+// ── GET /api/players/submitted ───────────────────────────────────────────────
+// Public endpoint: returns which players have submitted and which models.
+router.get('/submitted', async (req, res) => {
+  try {
+    const db = getDB();
+    const docs = await db
+      .collection(COLLECTION)
+      .find({}, { projection: { nombreJugador: 1, modelo: 1 } })
+      .toArray();
+
+    // Group by player name
+    const map = {};
+    for (const doc of docs) {
+      if (!map[doc.nombreJugador]) map[doc.nombreJugador] = [];
+      map[doc.nombreJugador].push(doc.modelo);
+    }
+
+    const result = Object.entries(map).map(([nombreJugador, modelos]) => ({
+      nombreJugador,
+      modelos,
+    }));
+
+    return res.json(result);
+  } catch (err) {
+    console.error('submitted error:', err);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 // ── GET /api/players (protected) ─────────────────────────────────────────────
 router.get('/', authMiddleware, async (req, res) => {
   try {
