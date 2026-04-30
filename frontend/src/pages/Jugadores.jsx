@@ -8,6 +8,7 @@ const PLAYERS = [
   'Diego Saavedra',  'Diego Vaca',      'Eduardo Torrico','Enoc Moro',
   'Enrique Cruz',    'Jhonny Alvarado', 'Jose David Moreno', 'Landy',
   'Lucas Lino',      'Mario Moreno',    'Mateo Eguez',    'Mateo Ruiz',
+  'Victor Chavez',
   'Mauricio Ardaya', 'Nicolas Angulo',  'Nicolas Duran',  'Oscar Aguilar',
   'Pablo Zurita',    'Paul Aguilera',   'Saiid',          'Sebastian Manzano',
 ].map((p) => ({ value: p, label: p }));
