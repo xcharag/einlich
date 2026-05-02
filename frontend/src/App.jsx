@@ -18,7 +18,7 @@ export default function App() {
             <Route path="/reportes" element={<Reportes />} />
           </Routes>
           <a
-            href="https://me.xchar.site"
+            href="https://xchar.site"
             target="_blank"
             rel="noopener noreferrer"
             className="dev-credit"
